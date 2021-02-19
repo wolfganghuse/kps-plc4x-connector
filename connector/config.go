@@ -21,7 +21,7 @@ var (
 	// ConnectorCfg stores the dynamic configuration of the Connector runtime
 	ConnectorCfg = &Config{
 		// TODO: Set the name for the Connector
-		Name:          "TemplateConnector",
+		Name:          "plc4xconnector",
 		dynamicConfig: make(map[string]interface{}),
 	}
 )
