@@ -2,16 +2,16 @@ SHELL := /usr/bin/env bash -o pipefail
 
 # TODO: Replace with the actual connector name
 # This controls the location of the cache.
-PROJECT := kps-connector-go-template
+PROJECT := kps-plc4x-connector
 
 # TODO: Replace with the actual connector name
-export CONNECTOR_NAME := templateconnector
+export CONNECTOR_NAME := plc4xconnector
 
 # TODO: Replace with the docker image tag
-TAG=$(shell whoami)
-
+#TAG=$(shell whoami)
+TAG=develop
 # TODO: Replace with the docker repository URI
-IMAGE_URI=registry.hub.docker.com/kps/connector/$(CONNECTOR_NAME):$(TAG)
+IMAGE_URI=wolfganghuse/$(CONNECTOR_NAME):$(TAG)
 
 ### Everything below this line is meant to be static, i.e. only adjust the above variables. ###
 
