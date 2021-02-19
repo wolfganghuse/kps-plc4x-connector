@@ -1,3 +1,15 @@
-connector/plc4x.go:43:9: expected ';', found 'chan'
-connector/plc4x.go:48:2: expected '}', found 'return'
-connector/plc4x.go:59:2: expected declaration, found 'if'
+diff -u connector/plc4x.go.orig connector/plc4x.go
+--- connector/plc4x.go.orig	2021-02-19 12:43:26.000000000 +0100
++++ connector/plc4x.go	2021-02-19 12:43:26.000000000 +0100
+@@ -38,8 +38,8 @@
+ type consumer struct {
+ 	transport  transport.Client
+ 	metadata   *streamMetadata
+-	connection *plc4go.PlcConnection    //?????
+-	rr         model.PlcReadRequest // ???? ReadRequest}
++	connection *plc4go.PlcConnection //?????
++	rr         model.PlcReadRequest  // ???? ReadRequest}
+ }
+ 
+ // producer consumes the data from the relevant client or service and publishes them to KPS data pipelines
+main.go is in package main, not connector
