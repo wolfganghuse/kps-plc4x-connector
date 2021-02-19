@@ -3,7 +3,6 @@ package connector
 import (
 	"context"
 	"log"
-	"reflect"
 
 	"github.com/nutanix/kps-connector-go-sdk/transport"
 
@@ -14,9 +13,9 @@ import (
 )
 
 type streamMetadata struct {
-	Plc string
-	Addresses  struct {
-		Name string
+	Plc       string
+	Addresses struct {
+		Name    string
 		Address string
 	}
 	PollingIntervall int
@@ -27,9 +26,9 @@ func mapToStreamMetadata(metadata map[string]interface{}) *streamMetadata {
 	plc := metadata["plc"].(string)
 	// ???? How to iterate through the unkown size of a struct passed into Metadata?
 	//addresses := metadata[""].(struct)
-	pollingintervall := metadata["polling-intervall"].(string)
+	pollingintervall := metadata["polling-intervall"].(int)
 	return &streamMetadata{
-		Plc:  plc,
+		Plc: plc,
 		// Same here, need to assign the struct here
 		// Addresses: {Name, Address}
 		PollingIntervall: pollingintervall,
@@ -37,10 +36,11 @@ func mapToStreamMetadata(metadata map[string]interface{}) *streamMetadata {
 }
 
 type consumer struct {
-	transport transport.Client
-	metadata  *streamMetadata
-	connection   * //?????
-	rr     chan * // ???? ReadRequest}
+	transport  transport.Client
+	metadata   *streamMetadata
+	connection *plc4go.PlcConnection    //?????
+	rr         model.PlcReadRequest // ???? ReadRequest}
+}
 
 // producer consumes the data from the relevant client or service and publishes them to KPS data pipelines
 func newConsumer() *consumer {
@@ -51,24 +51,25 @@ func newConsumer() *consumer {
 // nextMsg wraps the logic for consuming iteratively a transport.Message
 // from the relevant client or service
 func (c *consumer) nextMsg() ([]byte, error) {
-	
+
 	rrc := c.rr.Execute()
 
 	// Wait for the response to finish
 	rrr := <-rrc
 	if rrr.Err != nil {
 		log.Printf("error executing read-request: %s", rrr.Err.Error())
-		return
+		return nil, nil
 	}
 
 	// Do something with the response
 	if rrr.Response.GetResponseCode("field") != model.PlcResponseCode_OK {
 		log.Printf("error an non-ok return code: %s", rrr.Response.GetResponseCode("field").GetName())
-		return
+		return nil, nil
 	}
 
 	value := rrr.Response.GetValue("field")
-	return value.Data, nil
+	log.Printf("Returned Value: %s", value.GetString())
+	return []byte("?? Type Conv"), nil // ???? TODO Typ-Conversion to Bytes missing
 }
 
 // subscribe wraps the logic to connect or subscribe to the corresponding stream
@@ -78,7 +79,6 @@ func (c *consumer) subscribe(ctx context.Context, metadata *streamMetadata) erro
 	driverManager := plc4go.NewPlcDriverManager()
 	transports.RegisterTcpTransport(driverManager)
 	drivers.RegisterModbusDriver(driverManager)
-	
 
 	// Get a connection to a remote PLC
 	crc := driverManager.GetConnection("modbus:tcp://192.168.178.183")
@@ -87,7 +87,7 @@ func (c *consumer) subscribe(ctx context.Context, metadata *streamMetadata) erro
 	connectionResult := <-crc
 	if connectionResult.Err != nil {
 		log.Printf("error connecting to PLC: %s", connectionResult.Err.Error())
-		return
+		return nil
 	}
 	connection := connectionResult.Connection
 
@@ -100,9 +100,9 @@ func (c *consumer) subscribe(ctx context.Context, metadata *streamMetadata) erro
 	readRequest, err := rrb.Build()
 	if err != nil {
 		log.Printf("error preparing read-request: %s", connectionResult.Err.Error())
-		return
+		return nil
 	}
-
+	c.rr = readRequest
 	return nil
 }
 

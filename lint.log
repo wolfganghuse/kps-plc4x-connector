@@ -1,0 +1,3 @@
+connector/plc4x.go:43:9: expected ';', found 'chan'
+connector/plc4x.go:48:2: expected '}', found 'return'
+connector/plc4x.go:59:2: expected declaration, found 'if'
