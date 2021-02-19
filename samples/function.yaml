@@ -1,0 +1,7 @@
+kind: function
+name: echorelay-function
+description: function/transformation passthru
+project: TemplateConnectorProject
+sourceCodePath: "samples/echo.py"
+language: python
+environment: python-env

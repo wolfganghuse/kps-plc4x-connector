@@ -1,0 +1,16 @@
+{
+  "name": "templateconnectorstream-ingress",
+  "connectorInstanceID": "f29673b0-10f4-44dc-b4fd-02331ace2ffa",
+  "labels": [
+    {
+      "id": "412c01ae-7fa9-442e-b102-1964c7788214",
+      "value": "template"
+    }
+  ],
+  "direction": "INGRESS",
+  "serviceDomainIds": [
+    "fe1ec650-d41e-4ecb-9d75-da94089deb7e"
+  ],
+  "stream": {
+  }
+}

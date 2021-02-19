@@ -1,0 +1,28 @@
+{
+  "name": "templateconnector",
+  "description": "This is a class definition of KPS connector template",
+  "connectorVersion": "1.0",
+  "minSvcDomainVersion": "2.3.0",
+  "type": "BIDIRECTIONAL",
+  "staticParameterSchema": {
+    "type": "object",
+    "properties": {
+      "image_tag": {
+        "type": "string",
+        "description": "test docker image tag to render in yaml"
+      }
+    }
+  },
+  "configParameterSchema": {
+    "type": "object",
+    "properties": {
+    }
+  },
+  "streamParameterSchema": {
+    "type": "object",
+    "description": "Stream schema",
+    "properties": {
+    }
+  },
+  "yamlData": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: templateconnector\nspec:\n  replicas: 1\n  selector:\n    matchLabels:\n      app: templateconnector\n  template:\n    metadata:\n      name: templateconnector\n      labels:\n        app: templateconnector\n    spec:\n      containers:\n        - name: templateconnector\n          image: \"770301640873.dkr.ecr.us-west-2.amazonaws.com/edgecomputing/connector/templateconnector:{{ .Parameters.image_tag }}\"\n          imagePullPolicy: Always\n          securityContext:\n            runAsUser: 9999\n            allowPrivilegeEscalation: false\n          ports:\n            - containerPort: 8000\n---\nkind: Service\napiVersion: v1\nmetadata:\n  name: templateconnector-svc\nspec:\n  selector:\n    app: templateconnector\n  ports:\n    - protocol: TCP\n      name: templateconnector\n      port: 9000\n      targetPort: 8000\n"
+}

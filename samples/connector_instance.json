@@ -1,0 +1,8 @@
+{
+  "name": "natsconnectorinstance",
+  "connectorClassID": "cf1bc3db-5198-469b-82f0-8dc2987a9748",
+  "projectId": "ed48daa8-b931-45c1-9a96-f8949633f892",
+  "staticParameters": {
+    "image_tag": "sid.shukla"
+  }
+}

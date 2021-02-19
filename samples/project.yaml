@@ -1,0 +1,8 @@
+kind: Project
+name: TemplateConnectorProject
+description: Template Connector project
+users: ["test"]
+edges: ["sd1.0"]
+cloudProfiles: []
+dockerProfiles: []
+privileged: false

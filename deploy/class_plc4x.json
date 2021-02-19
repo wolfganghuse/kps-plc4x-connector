@@ -1,0 +1,79 @@
+{
+  "name": "plc4xconnector",
+  "description": "This is a class definition of PLC4X data connector.",
+  "connectorVersion": "0.1",
+  "minSvcDomainVersion": "3.0.0",
+  "type": "INGRESS",
+  "staticParameterSchema": {
+    "type": "object",
+    "properties": {
+      "image_tag": {
+        "type": "string",
+        "description": "test docker image tag to render in yaml"
+      }
+    }
+  },
+  "configParameterSchema": {
+    "type": "object",
+    "properties": {
+      "log_level": {
+        "type": "string",
+        "description": "connector docker container log level"
+      }
+    }
+  },
+  "streamParameterSchema": {
+    "type": "object",
+    "description": "Stream schema",
+
+  "properties": {
+    "plc": {
+      "type": "string"
+    },
+    "addresses": {
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "address": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "address"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "address": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "address"
+          ]
+        }
+      ]
+    },
+    "polling-intervall": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "plc",
+    "addresses",
+    "polling-intervall"
+  ]
+  },
+  "yamlData": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: plc4xconnector\nspec:\n  replicas: 1\n  selector:\n    matchLabels:\n      app: plc4xconnector\n  template:\n    metadata:\n      name: plc4xconnector\n      labels:\n        app: plc4xconnector\n    spec:\n      containers:\n        - name: plc4xconnector\n          image: \"wolfganghuse/plc4xconnector:{{ .Parameters.image_tag }}\"\n          imagePullPolicy: Always\n          securityContext:\n            runAsUser: 9999\n            allowPrivilegeEscalation: false\n          ports:\n            - containerPort: 8000\n"
+}

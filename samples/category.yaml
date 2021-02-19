@@ -1,0 +1,5 @@
+kind: category
+name: connector
+description: connector category
+values:
+  - template

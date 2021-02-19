@@ -1,0 +1,8 @@
+plc:
+  connection: opcua:tcp://192.168.178.120:53530/opcua/SimulationServer
+  addresses:
+    - name: Counter
+      address: ns=3;s=Counter
+    - name: Sinusoid
+      address: ns=3;s=Sinusoid
+polling-interval: 100

@@ -1,0 +1,9 @@
+{
+  "name": "plc4xconnector",
+  "connectorClassID": "107ebd6c-6ae8-4830-a91a-44d2425b575b",
+  "projectId": "577a55d4-5115-495f-990d-36244af09724",
+  "staticParameters": {
+    "image_tag": "latest"
+  }
+}
+

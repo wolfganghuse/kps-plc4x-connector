@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: templateconnector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: templateconnector
+  template:
+    metadata:
+      name: templateconnector
+      labels:
+        app: templateconnector
+    spec:
+      containers:
+        - name: templateconnector
+          image: "770301640873.dkr.ecr.us-west-2.amazonaws.com/edgecomputing/connector/templateconnector:{{ .Parameters.image_tag }}"
+          imagePullPolicy: Always
+          securityContext:
+            runAsUser: 9999
+            allowPrivilegeEscalation: false
+          ports:
+            - containerPort: 8000
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: templateconnector-svc
+spec:
+  selector:
+    app: templateconnector
+  ports:
+    - protocol: TCP
+      name: templateconnector
+      port: 9000
+      targetPort: 8000

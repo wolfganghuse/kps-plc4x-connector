@@ -1,0 +1,14 @@
+kind: dataPipeline
+name: echorelay-pipeline
+description: This data pipeline consumes data from template connector then outputs to template connector
+project: TemplateConnectorProject
+functions:
+  - name: echorelay-function
+input:
+  categorySelectors:
+    connector:
+      - template
+output:
+  localEdge:
+    type: Connector
+    endpointName: templateconnectorstream-egress

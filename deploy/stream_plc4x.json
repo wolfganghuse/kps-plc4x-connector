@@ -1,0 +1,28 @@
+{
+   "name":"plc4x-stream-in",
+   "connectorInstanceID":"f29673b0-10f4-44dc-b4fd-02331ace2ffa",
+   "labels":[
+      {
+         "id":"412c01ae-7fa9-442e-b102-1964c7788214",
+         "value":"plc4x"
+      }
+   ],
+   "direction":"INGRESS",
+   "serviceDomainIds":[
+      "fe1ec650-d41e-4ecb-9d75-da94089deb7e"
+   ],
+   "stream":{
+      "plc":"opcua:tcp://192.168.178.120:53530/opcua/SimulationServer",
+      "addresses":[
+         {
+            "name":"Counter",
+            "address":"ns=3;s=Counter"
+         },
+         {
+            "name":"Sinusoid",
+            "address":"ns=3;s=Sinusoid"
+         }
+      ],
+      "polling-intervall":100
+   }
+}
