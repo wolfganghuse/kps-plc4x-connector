@@ -1,0 +1,28 @@
+{
+  "name": "templateconnector",
+  "description": "This is a class definition of KPS connector template",
+  "connectorVersion": "1.0",
+  "minSvcDomainVersion": "2.3.0",
+  "type": "BIDIRECTIONAL",
+  "staticParameterSchema": {
+    "type": "object",
+    "properties": {
+      "image_tag": {
+        "type": "string",
+        "description": "test docker image tag to render in yaml"
+      }
+    }
+  },
+  "configParameterSchema": {
+    "type": "object",
+    "properties": {
+    }
+  },
+  "streamParameterSchema": {
+    "type": "object",
+    "description": "Stream schema",
+    "properties": {
+    }
+  },
+  "yamlData": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: plc4xconnector\nspec:\n  replicas: 1\n  selector:\n    matchLabels:\n      app: plc4xconnector\n  template:\n    metadata:\n      name: plc4xconnector\n      labels:\n        app: plc4xconnector\n    spec:\n      containers:\n        - name: plc4xconnector\n          image: \"wolfganghuse/plc4xconnector:{{ .Parameters.image_tag }}\"\n          imagePullPolicy: Always\n          securityContext:\n            runAsUser: 9999\n            allowPrivilegeEscalation: false\n          ports:\n            - containerPort: 8000\n"
+}

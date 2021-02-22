@@ -1,5 +1,5 @@
 {
-  "name": "natsconnectorsconfig",
+  "name": "plc4xconnector",
   "description": "This is a dynamic config for plc4x connector instance",
   "connectorInstanceID": "f29673b0-10f4-44dc-b4fd-02331ace2ffa",
   "config": {
