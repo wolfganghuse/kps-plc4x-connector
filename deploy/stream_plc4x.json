@@ -12,15 +12,15 @@
       "fe1ec650-d41e-4ecb-9d75-da94089deb7e"
    ],
    "stream":{
-      "plc":"opcua:tcp://192.168.178.120:53530/opcua/SimulationServer",
+      "plc":"modbus:tcp://modbus-svc:5020",
       "addresses":[
          {
-            "name":"Counter",
-            "address":"ns=3;s=Counter"
+            "name":"Field1",
+            "address":"holding-register:123:REAL"
          },
          {
-            "name":"Sinusoid",
-            "address":"ns=3;s=Sinusoid"
+            "name":"Field2",
+            "address":"holding-register:456:REAL"
          }
       ],
       "polling-intervall":100

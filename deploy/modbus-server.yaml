@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: modbus-server-json
+data:
+  server.json: |-
+    {
+    "server": {
+      "listenerAddress": "0.0.0.0",
+      "listenerPort": 5020,
+      "tlsParams": {
+        "description": "path to certificate and private key to enable tls",
+        "privateKey": null,
+        "certificate": null
+        },
+      "logging": {
+        "format": "%(asctime)-15s %(threadName)-15s  %(levelname)-8s %(module)-15s:%(lineno)-8s %(message)s",
+        "logLevel": "DEBUG"
+        }
+      },
+    "registers": {
+      "description": "initial values for the register types",
+      "zeroMode": false,
+      "initializeUndefinedRegisters": true,
+      "discreteInput": {},
+      "coils": {},
+      "holdingRegister": {
+        "123": "0xAABB",
+        "246": "0x0101"
+      },
+      "inputRegister": {}
+      }
+    }
+---
+apiVersion: "apps/v1"
+kind: "StatefulSet"
+metadata:
+  name: modbus-stateful
+spec:
+  serviceName: modbus
+  replicas: 1
+  selector:
+    matchLabels:
+      app: modbus
+  template:
+    metadata:
+      name: modbus
+      labels:
+        app: modbus
+    spec:
+      containers:
+      - name: modbus
+        image: oitc/modbus-server
+        args: ["-f", "/app/server.json"]
+        ports:
+        - name: modbus
+          containerPort: 5020
+        volumeMounts:
+          - mountPath: /app
+            name: modbus-server-json
+            readOnly: false
+      volumes:
+        - name: modbus-server-json
+          configMap:
+              defaultMode: 420
+              name: modbus-server-json
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: modbus-svc
+spec:
+  selector: 
+    app: modbus
+  ports:
+    - port: 5020
+      targetPort: 5020
