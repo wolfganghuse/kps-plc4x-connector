@@ -1,7 +1,7 @@
 {
   "name": "plc4xconnector",
   "description": "This is a class definition of PLC4X data connector.",
-  "connectorVersion": "0.1",
+  "connectorVersion": "1.0",
   "minSvcDomainVersion": "2.3.0",
   "type": "INGRESS",
   "staticParameterSchema": {
