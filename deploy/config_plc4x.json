@@ -1,11 +1,8 @@
 {
   "name": "plc4xconnector",
   "description": "This is a dynamic config for plc4x connector instance",
-  "connectorInstanceID": "f29673b0-10f4-44dc-b4fd-02331ace2ffa",
+  "connectorInstanceID": "ed5881f9-8e3b-48c5-a29c-8a87a408027c",
   "config": {
     "log_level": "INFO"
-  },
-  "serviceDomainIds": [
-    "fe1ec650-d41e-4ecb-9d75-da94089deb7e"
-  ]
+  }
 }

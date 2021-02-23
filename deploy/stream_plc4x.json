@@ -1,26 +1,23 @@
 {
    "name":"plc4x-stream-in",
-   "connectorInstanceID":"f29673b0-10f4-44dc-b4fd-02331ace2ffa",
+   "connectorInstanceID":"ed5881f9-8e3b-48c5-a29c-8a87a408027c",
    "labels":[
       {
-         "id":"412c01ae-7fa9-442e-b102-1964c7788214",
+         "id":"d8b22f62-4856-4358-bc12-a0e7a3aa2040-cat-data-type",
          "value":"plc4x"
       }
    ],
    "direction":"INGRESS",
-   "serviceDomainIds":[
-      "fe1ec650-d41e-4ecb-9d75-da94089deb7e"
-   ],
    "stream":{
       "plc":"modbus:tcp://modbus-svc:5020",
       "addresses":[
          {
             "name":"Field1",
-            "address":"holding-register:123:REAL"
+            "address":"holding-register:123:INT"
          },
          {
             "name":"Field2",
-            "address":"holding-register:456:REAL"
+            "address":"holding-register:246:INT"
          }
       ],
       "polling-intervall":100
