@@ -8,6 +8,9 @@
       }
    ],
    "direction":"INGRESS",
+   "serviceDomainIds": [
+      "aad65a1c-944f-44d6-8ce1-f4715c081625"
+    ],
    "stream":{
       "plc":"modbus:tcp://modbus-svc:5020",
       "addresses":[
