@@ -69,6 +69,7 @@ func (c *consumer) nextMsg() ([]byte, error) {
 
 	value := rrr.Response.GetValue("field")
 	log.Printf("Returned Value: %s", value.GetString())
+	
 	return []byte("?? Type Conv"), nil // ???? TODO Typ-Conversion to Bytes missing
 }
 
@@ -96,7 +97,7 @@ func (c *consumer) subscribe(ctx context.Context, metadata *streamMetadata) erro
 
 	// Prepare a read-request
 	rrb := connection.ReadRequestBuilder()
-	rrb.AddItem("field", "holding-register:26:REAL")
+	rrb.AddItem("field", "holding-register:123:INT")
 	readRequest, err := rrb.Build()
 	if err != nil {
 		log.Printf("error preparing read-request: %s", connectionResult.Err.Error())
