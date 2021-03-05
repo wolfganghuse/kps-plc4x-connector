@@ -1,7 +1,37 @@
 diff -u connector/plc4x.go.orig connector/plc4x.go
---- connector/plc4x.go.orig	2021-03-05 21:47:56.000000000 +0100
-+++ connector/plc4x.go	2021-03-05 21:47:56.000000000 +0100
-@@ -22,7 +22,6 @@
+--- connector/plc4x.go.orig	2021-03-05 23:43:20.000000000 +0100
++++ connector/plc4x.go	2021-03-05 23:43:20.000000000 +0100
+@@ -2,9 +2,9 @@
+ 
+ import (
+ 	"context"
++	"encoding/json"
+ 	"log"
+ 	"time"
+-	"encoding/json"
+ 
+ 	"github.com/nutanix/kps-connector-go-sdk/transport"
+ 
+@@ -12,7 +12,6 @@
+ 	"github.com/apache/plc4x/plc4go/pkg/plc4go/drivers"
+ 	"github.com/apache/plc4x/plc4go/pkg/plc4go/model"
+ 	"github.com/apache/plc4x/plc4go/pkg/plc4go/transports"
+-
+ )
+ 
+ type Address struct {
+@@ -20,17 +19,15 @@
+ 	Address string
+ }
+ 
+-type rvalue struct{
++type rvalue struct {
+ 	Field []string `json:"field"`
+ 	Value []string `json:"value"`
+ }
+ 
+-
+ type streamMetadata struct {
  	Plc       string
  	Addresses []Address
  
@@ -9,9 +39,12 @@ diff -u connector/plc4x.go.orig connector/plc4x.go
  	//PollingIntervall int  // removed for testing
  }
  
-@@ -44,16 +43,15 @@
- 		addressAddress := addressMap["address"]
+@@ -57,26 +54,25 @@
+ 			// bail out
+ 		}
  		log.Printf("add Address: %s", addressAddress)
+-		
++
  		addr := Address{
 -			Name: addressName,
 +			Name:    addressName,
@@ -26,10 +59,9 @@ diff -u connector/plc4x.go.orig connector/plc4x.go
 -		Addresses: addresses,		
 +		Plc:       plc,
 +		Addresses: addresses,
+ 	}
+ }
  
- 		// Same here, need to assign the struct here
- 		// Addresses: {Name, Address}
-@@ -64,8 +62,8 @@
  type consumer struct {
  	transport  transport.Client
  	metadata   *streamMetadata
@@ -40,33 +72,57 @@ diff -u connector/plc4x.go.orig connector/plc4x.go
  }
  
  // producer consumes the data from the relevant client or service and publishes them to KPS data pipelines
-@@ -79,7 +77,7 @@
+@@ -89,10 +85,8 @@
+ // from the relevant client or service
  func (c *consumer) nextMsg() ([]byte, error) {
  
+-
+-
  	// manual slow down Polling
 -	time.Sleep(5 * time.Second )
 +	time.Sleep(5 * time.Second)
  	rrc := c.rr.Execute()
  	log.Printf("nexmsg")
  	// Wait for the response to finish
-@@ -91,7 +89,6 @@
+@@ -103,28 +97,28 @@
+ 	}
  
  	// Do something with the response
- 
--
- 	if rrr.Response.GetResponseCode("field1") != model.PlcResponseCode_OK {
- 		log.Printf("error an non-ok return code: %s", rrr.Response.GetResponseCode("field1").GetName())
- 		return nil, nil
-@@ -99,7 +96,7 @@
- 
- 	value := rrr.Response.GetValue("field1")
- 	log.Printf("Returned Value: %s", value.GetString())
+-	
+-	rvalues := make([]string,0)
+-	rfields := make([]string,0)
 -	
 +
- 	return []byte(value.GetString()), nil // ???? TODO Typ-Conversion to Bytes missing
++	rvalues := make([]string, 0)
++	rfields := make([]string, 0)
++
+ 	for _, fieldname := range rrr.Response.GetFieldNames() {
+ 		log.Printf("processing field: %s", fieldname)
+ 		if rrr.Response.GetResponseCode(fieldname) != model.PlcResponseCode_OK {
+ 			log.Printf("error an non-ok return code: %s", rrr.Response.GetResponseCode(fieldname).GetName())
+ 			return nil, nil
+ 		}
+-	
++
+ 		value := rrr.Response.GetValue(fieldname)
+ 		log.Printf("Returned Value: %s", value.GetString())
+-		rfields = append(rfields,fieldname)
+-		rvalues = append(rvalues,value.GetString())
++		rfields = append(rfields, fieldname)
++		rvalues = append(rvalues, value.GetString())
+ 	}
+-	
++
+ 	toMarshal := &rvalue{
+ 		Field: rfields,
+ 		Value: rvalues,
+ 	}
+-	
++
+ 	return json.Marshal(toMarshal)
  }
  
-@@ -113,7 +110,7 @@
+@@ -138,7 +132,7 @@
  
  	// Get a connection to a remote PLC
  	crc := driverManager.GetConnection(metadata.Plc)
@@ -75,9 +131,9 @@ diff -u connector/plc4x.go.orig connector/plc4x.go
  	connectionResult := <-crc
  	if connectionResult.Err != nil {
  		log.Printf("error connecting to PLC: %s", connectionResult.Err.Error())
-@@ -133,7 +130,7 @@
+@@ -157,7 +151,7 @@
+ 		log.Printf("added address: %s", address.Address)
  		rrb.AddItem(address.Name, address.Address)
- 		//rrb.AddItem("field1","holding-register:4:INT")
  	}
 -	
 +

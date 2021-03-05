@@ -15,12 +15,12 @@
       "plc":"modbus:tcp://modbus-svc:5020",
       "addresses":[
          {
-            "name":"field1",
-            "address":"holding-register:5:INT"
+            "name":"field3",
+            "address":"holding-register:6:INT"
          },
          {
-            "name":"field2",
-            "address":"holding-register:9:INT"
+            "name":"field4",
+            "address":"holding-register:7:INT"
          }
       ]
    }

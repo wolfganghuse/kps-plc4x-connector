@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"time"
+	"encoding/json"
 
 	"github.com/nutanix/kps-connector-go-sdk/transport"
 
@@ -11,12 +12,19 @@ import (
 	"github.com/apache/plc4x/plc4go/pkg/plc4go/drivers"
 	"github.com/apache/plc4x/plc4go/pkg/plc4go/model"
 	"github.com/apache/plc4x/plc4go/pkg/plc4go/transports"
+
 )
 
 type Address struct {
 	Name    string
 	Address string
 }
+
+type rvalue struct{
+	Field []string `json:"field"`
+	Value []string `json:"value"`
+}
+
 
 type streamMetadata struct {
 	Plc       string
@@ -31,18 +39,25 @@ func mapToStreamMetadata(metadata map[string]interface{}) *streamMetadata {
 	plc := metadata["plc"].(string)
 	addressObjs, ok := metadata["addresses"].([]interface{})
 	if !ok {
-		// bail out
+		log.Printf("unable to type infer Addresses: expected []interface found %T", metadata["addresses"])
 	}
 	addresses := make([]Address, 0, len(addressObjs))
 	for _, obj := range addressObjs {
-		addressMap, ok := obj.(map[string]string)
+		addressMap, ok := obj.(map[string]interface{})
 		if !ok {
 			// bail out
 		}
-		addressName := addressMap["name"]
+		addressName, ok := addressMap["name"].(string)
+		if !ok {
+			// bail out
+		}
 		log.Printf("add Name: %s", addressName)
-		addressAddress := addressMap["address"]
+		addressAddress, ok := addressMap["address"].(string)
+		if !ok {
+			// bail out
+		}
 		log.Printf("add Address: %s", addressAddress)
+		
 		addr := Address{
 			Name: addressName,
 			Address: addressAddress,
@@ -74,6 +89,8 @@ func newConsumer() *consumer {
 // from the relevant client or service
 func (c *consumer) nextMsg() ([]byte, error) {
 
+
+
 	// manual slow down Polling
 	time.Sleep(5 * time.Second )
 	rrc := c.rr.Execute()
@@ -86,17 +103,29 @@ func (c *consumer) nextMsg() ([]byte, error) {
 	}
 
 	// Do something with the response
-
-
-	if rrr.Response.GetResponseCode("field1") != model.PlcResponseCode_OK {
-		log.Printf("error an non-ok return code: %s", rrr.Response.GetResponseCode("field1").GetName())
-		return nil, nil
-	}
-
-	value := rrr.Response.GetValue("field1")
-	log.Printf("Returned Value: %s", value.GetString())
 	
-	return []byte(value.GetString()), nil // ???? TODO Typ-Conversion to Bytes missing
+	rvalues := make([]string,0)
+	rfields := make([]string,0)
+	
+	for _, fieldname := range rrr.Response.GetFieldNames() {
+		log.Printf("processing field: %s", fieldname)
+		if rrr.Response.GetResponseCode(fieldname) != model.PlcResponseCode_OK {
+			log.Printf("error an non-ok return code: %s", rrr.Response.GetResponseCode(fieldname).GetName())
+			return nil, nil
+		}
+	
+		value := rrr.Response.GetValue(fieldname)
+		log.Printf("Returned Value: %s", value.GetString())
+		rfields = append(rfields,fieldname)
+		rvalues = append(rvalues,value.GetString())
+	}
+	
+	toMarshal := &rvalue{
+		Field: rfields,
+		Value: rvalues,
+	}
+	
+	return json.Marshal(toMarshal)
 }
 
 // subscribe wraps the logic to connect or subscribe to the corresponding stream
@@ -127,7 +156,6 @@ func (c *consumer) subscribe(ctx context.Context, metadata *streamMetadata) erro
 		log.Printf("added name: %s", address.Name)
 		log.Printf("added address: %s", address.Address)
 		rrb.AddItem(address.Name, address.Address)
-		//rrb.AddItem("field1","holding-register:4:INT")
 	}
 	
 	readRequest, err := rrb.Build()
