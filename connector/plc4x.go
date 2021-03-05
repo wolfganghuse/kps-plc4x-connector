@@ -82,9 +82,9 @@ func (c *consumer) subscribe(ctx context.Context, metadata *streamMetadata) erro
 	drivers.RegisterModbusDriver(driverManager)
 
 	// Get a connection to a remote PLC
-	crc := driverManager.GetConnection("modbus:tcp://192.168.178.183")
-
-	// Wait for the driver to connect (or not)
+	//crc := driverManager.GetConnection("modbus:tcp://192.168.178.183")
+	crc := driverManager.GetConnection(metadata.Plc)
+	 // Wait for the driver to connect (or not)
 	connectionResult := <-crc
 	if connectionResult.Err != nil {
 		log.Printf("error connecting to PLC: %s", connectionResult.Err.Error())
