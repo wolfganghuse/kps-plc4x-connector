@@ -2,17 +2,17 @@ package connector
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"time"
-	"encoding/json"
 
 	"github.com/nutanix/kps-connector-go-sdk/transport"
 
+	"github.com/apache/plc4x/plc4go/internal/plc4go/spi/values"
 	"github.com/apache/plc4x/plc4go/pkg/plc4go"
 	"github.com/apache/plc4x/plc4go/pkg/plc4go/drivers"
 	"github.com/apache/plc4x/plc4go/pkg/plc4go/model"
 	"github.com/apache/plc4x/plc4go/pkg/plc4go/transports"
-
 )
 
 type Address struct {
@@ -116,8 +116,15 @@ func (c *consumer) nextMsg() ([]byte, error) {
 	
 		value := rrr.Response.GetValue(fieldname)
 		log.Printf("Returned Value: %s", value.GetString())
+//
+		
+	
+		
+//
 		rfields = append(rfields,fieldname)
 		rvalues = append(rvalues,value.GetString())
+
+		
 	}
 	
 	toMarshal := &rvalue{
@@ -126,6 +133,7 @@ func (c *consumer) nextMsg() ([]byte, error) {
 	}
 	
 	return json.Marshal(toMarshal)
+
 }
 
 // subscribe wraps the logic to connect or subscribe to the corresponding stream
