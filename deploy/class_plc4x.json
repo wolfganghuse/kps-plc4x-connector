@@ -25,7 +25,6 @@
   "streamParameterSchema": {
     "type": "object",
     "description": "Stream schema",
-
   "properties": {
     "plc": {
       "type": "string"
@@ -64,16 +63,12 @@
           ]
         }
       ]
-    },
-    "polling-intervall": {
-      "type": "integer"
     }
   },
   "required": [
     "plc",
-    "addresses",
-    "polling-intervall"
+    "addresses"
   ]
   },
-  "yamlData": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: templateconnector\nspec:\n  replicas: 1\n  selector:\n    matchLabels:\n      app: templateconnector\n  template:\n    metadata:\n      name: templateconnector\n      labels:\n        app: templateconnector\n    spec:\n      containers:\n        - name: templateconnector\n          image: \"770301640873.dkr.ecr.us-west-2.amazonaws.com/edgecomputing/connector/templateconnector:{{ .Parameters.image_tag }}\"\n          imagePullPolicy: Always\n          ports:\n            - containerPort: 8000\n---\nkind: Service\napiVersion: v1\nmetadata:\n  name: templateconnector-svc\nspec:\n  selector:\n    app: templateconnector\n  ports:\n    - protocol: TCP\n      name: templateconnector\n      port: 9000\n      targetPort: 8000\n"
+  "yamlData": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: plc4xconnector\nspec:\n  replicas: 1\n  selector:\n    matchLabels:\n      app: plc4xconnector\n  template:\n    metadata:\n      name: plc4xconnector\n      labels:\n        app: plc4xconnector\n    spec:\n      containers:\n        - name: plc4xconnector\n          image: \"wolfganghuse/plc4xconnector:{{ .Parameters.image_tag }}\"\n          imagePullPolicy: Always\n          ports:\n            - containerPort: 8000\n---\nkind: Service\napiVersion: v1\nmetadata:\n  name: plc4xconnector-svc\nspec:\n  selector:\n    app: plc4xconnector\n  ports:\n    - protocol: TCP\n      name: plc4xconnector\n      port: 9000\n      targetPort: 8000\n"
 }

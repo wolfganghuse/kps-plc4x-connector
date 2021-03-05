@@ -3,6 +3,7 @@ package connector
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/nutanix/kps-connector-go-sdk/transport"
 
@@ -12,26 +13,47 @@ import (
 	"github.com/apache/plc4x/plc4go/pkg/plc4go/transports"
 )
 
+type Address struct {
+	Name    string
+	Address string
+}
+
 type streamMetadata struct {
 	Plc       string
-	Addresses struct {
-		Name    string
-		Address string
-	}
-	PollingIntervall int
+	Addresses []Address
+
+	
+	//PollingIntervall int  // removed for testing
 }
 
 // mapToStreamMetadata translates the stream metadata into the corresponding streamMetadata struct
 func mapToStreamMetadata(metadata map[string]interface{}) *streamMetadata {
 	plc := metadata["plc"].(string)
-	// ???? How to iterate through the unkown size of a struct passed into Metadata?
-	//addresses := metadata[""].(struct)
-	pollingintervall := metadata["polling-intervall"].(int)
+	addressObjs, ok := metadata["addresses"].([]interface{})
+	if !ok {
+		// bail out
+	}
+	addresses := make([]Address, 0, len(addressObjs))
+	for _, obj := range addressObjs {
+		addressMap, ok := obj.(map[string]string)
+		if !ok {
+			// bail out
+		}
+		addressName := addressMap["name"]
+		log.Printf("add Name: %s", addressName)
+		addressAddress := addressMap["address"]
+		log.Printf("add Address: %s", addressAddress)
+		addr := Address{
+			Name: addressName,
+			Address: addressAddress,
+		}
+		addresses = append(addresses, addr)
+	}
+
+
 	return &streamMetadata{
 		Plc: plc,
-		// Same here, need to assign the struct here
-		// Addresses: {Name, Address}
-		PollingIntervall: pollingintervall,
+		Addresses: addresses,		
 	}
 }
 
@@ -52,8 +74,10 @@ func newConsumer() *consumer {
 // from the relevant client or service
 func (c *consumer) nextMsg() ([]byte, error) {
 
+	// manual slow down Polling
+	time.Sleep(5 * time.Second )
 	rrc := c.rr.Execute()
-
+	log.Printf("nexmsg")
 	// Wait for the response to finish
 	rrr := <-rrc
 	if rrr.Err != nil {
@@ -62,15 +86,17 @@ func (c *consumer) nextMsg() ([]byte, error) {
 	}
 
 	// Do something with the response
-	if rrr.Response.GetResponseCode("field") != model.PlcResponseCode_OK {
-		log.Printf("error an non-ok return code: %s", rrr.Response.GetResponseCode("field").GetName())
+
+
+	if rrr.Response.GetResponseCode("field1") != model.PlcResponseCode_OK {
+		log.Printf("error an non-ok return code: %s", rrr.Response.GetResponseCode("field1").GetName())
 		return nil, nil
 	}
 
-	value := rrr.Response.GetValue("field")
+	value := rrr.Response.GetValue("field1")
 	log.Printf("Returned Value: %s", value.GetString())
 	
-	return []byte("?? Type Conv"), nil // ???? TODO Typ-Conversion to Bytes missing
+	return []byte(value.GetString()), nil // ???? TODO Typ-Conversion to Bytes missing
 }
 
 // subscribe wraps the logic to connect or subscribe to the corresponding stream
@@ -82,7 +108,6 @@ func (c *consumer) subscribe(ctx context.Context, metadata *streamMetadata) erro
 	drivers.RegisterModbusDriver(driverManager)
 
 	// Get a connection to a remote PLC
-	//crc := driverManager.GetConnection("modbus:tcp://192.168.178.183")
 	crc := driverManager.GetConnection(metadata.Plc)
 	 // Wait for the driver to connect (or not)
 	connectionResult := <-crc
@@ -97,7 +122,14 @@ func (c *consumer) subscribe(ctx context.Context, metadata *streamMetadata) erro
 
 	// Prepare a read-request
 	rrb := connection.ReadRequestBuilder()
-	rrb.AddItem("field", "holding-register:123:INT")
+	//rrb.AddItem("field1","holding-register:4:INT")
+	for _, address := range metadata.Addresses {
+		log.Printf("added name: %s", address.Name)
+		log.Printf("added address: %s", address.Address)
+		rrb.AddItem(address.Name, address.Address)
+		//rrb.AddItem("field1","holding-register:4:INT")
+	}
+	
 	readRequest, err := rrb.Build()
 	if err != nil {
 		log.Printf("error preparing read-request: %s", connectionResult.Err.Error())

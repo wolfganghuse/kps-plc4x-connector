@@ -1,0 +1,19 @@
+package connector
+
+import (
+	"testing"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+func TestSubscribe(t *testing.T) {
+	c := newConsumer()
+	require.NotNil(t, c)
+	metadata := &streamMetadata{}
+	err := c.subscribe(context.Background(), metadata)
+	require.NoError(t, err)
+	b, err := c.nextMsg()
+	assert.NoError(t, err)
+	assert.Equal(t, string(b), "expected_value_of_b")
+}
+
