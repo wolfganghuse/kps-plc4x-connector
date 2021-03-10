@@ -1,9 +1,9 @@
 {
-  "name": "plc4xconnector",
+  "name": "plc4xconnector_prom",
   "connectorClassID": "6506ff98-e5e0-4095-a972-56d87c1fe4c8",
   "projectId": "91302a40-9006-4c8c-b538-b4b5ca239e49",
   "staticParameters": {
-    "image_tag": "develop"
+    "image_tag": "prom"
   }
 }
 

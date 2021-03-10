@@ -8,6 +8,7 @@ require (
 	github.com/gookit/color v1.3.7 // indirect
 	github.com/nbutton23/zxcvbn-go v0.0.0-20210217022336-fa2cb2858354 // indirect
 	github.com/nutanix/kps-connector-go-sdk v0.0.0-20210211173359-6b1301ef3741
+	github.com/prometheus/client_golang v1.9.0
 	github.com/securego/gosec/v2 v2.6.1 // indirect
 	golang.org/x/lint v0.0.0-20201208152925-83fdc39ff7b5 // indirect
 	golang.org/x/mod v0.4.1 // indirect

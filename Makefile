@@ -9,7 +9,7 @@ export CONNECTOR_NAME := plc4xconnector
 
 # TODO: Replace with the docker image tag
 #TAG=$(shell whoami)
-TAG=develop
+TAG=prom
 # TODO: Replace with the docker repository URI
 IMAGE_URI=wolfganghuse/$(CONNECTOR_NAME):$(TAG)
 

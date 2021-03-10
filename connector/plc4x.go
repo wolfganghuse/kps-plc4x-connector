@@ -5,15 +5,20 @@ import (
 	"encoding/json"
 	"log"
 	"time"
+	"flag"
 
 	"github.com/nutanix/kps-connector-go-sdk/transport"
 
-	"github.com/apache/plc4x/plc4go/internal/plc4go/spi/values"
 	"github.com/apache/plc4x/plc4go/pkg/plc4go"
 	"github.com/apache/plc4x/plc4go/pkg/plc4go/drivers"
 	"github.com/apache/plc4x/plc4go/pkg/plc4go/model"
 	"github.com/apache/plc4x/plc4go/pkg/plc4go/transports"
+	
+	"net/http"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
+
 
 type Address struct {
 	Name    string
@@ -21,8 +26,8 @@ type Address struct {
 }
 
 type rvalue struct{
-	Field []string `json:"field"`
-	Value []string `json:"value"`
+	Field string `json:"field"`
+	Value string `json:"value"`
 }
 
 
@@ -33,6 +38,15 @@ type streamMetadata struct {
 	
 	//PollingIntervall int  // removed for testing
 }
+
+var (
+	netBytes         = prometheus.NewCounter(prometheus.CounterOpts{
+		Name: "network_bytes_total",
+		Help: "Number of bytes seen on the network.",
+	})
+
+	addr              = flag.String("listen-address", ":8080", "The address to listen on for HTTP requests.")
+)
 
 // mapToStreamMetadata translates the stream metadata into the corresponding streamMetadata struct
 func mapToStreamMetadata(metadata map[string]interface{}) *streamMetadata {
@@ -90,6 +104,7 @@ func newConsumer() *consumer {
 func (c *consumer) nextMsg() ([]byte, error) {
 
 
+	netBytes.Add(float64(1))
 
 	// manual slow down Polling
 	time.Sleep(5 * time.Second )
@@ -104,8 +119,7 @@ func (c *consumer) nextMsg() ([]byte, error) {
 
 	// Do something with the response
 	
-	rvalues := make([]string,0)
-	rfields := make([]string,0)
+	rvalues := make([]rvalue,0)
 	
 	for _, fieldname := range rrr.Response.GetFieldNames() {
 		log.Printf("processing field: %s", fieldname)
@@ -118,27 +132,32 @@ func (c *consumer) nextMsg() ([]byte, error) {
 		log.Printf("Returned Value: %s", value.GetString())
 //
 		
-	
+		toMarshal := rvalue{
+			Field: fieldname,
+			Value: value.GetString(),
+		}
 		
 //
-		rfields = append(rfields,fieldname)
-		rvalues = append(rvalues,value.GetString())
+		rvalues = append(rvalues,toMarshal)
 
 		
 	}
 	
-	toMarshal := &rvalue{
-		Field: rfields,
-		Value: rvalues,
-	}
 	
-	return json.Marshal(toMarshal)
+	return json.Marshal(rvalues)
 
 }
 
 // subscribe wraps the logic to connect or subscribe to the corresponding stream
 // from the relevant client or service
 func (c *consumer) subscribe(ctx context.Context, metadata *streamMetadata) error {
+
+	prometheus.MustRegister(netBytes)
+
+	go func() {
+		http.Handle("/metrics", promhttp.Handler())
+		log.Fatal(http.ListenAndServe(*addr, nil))
+	}()
 
 	driverManager := plc4go.NewPlcDriverManager()
 	transports.RegisterTcpTransport(driverManager)
